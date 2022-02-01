@@ -1,0 +1,56 @@
+name: "Key Rotation" 
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  - group: Infrastructure
+
+trigger: none
+
+jobs:
+  - job: Deploy
+    steps:
+      - powershell: ../bin/terraform.exe init
+        displayName: "Initialize terraform"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/key_rotation
+        failOnStderr: true
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_sp_Secret_Name: $(ServicePrincipal)
+
+      - powershell: ../bin/terraform.exe destroy -auto-approve
+        displayName: "Destroy the plan"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/key_rotation
+        failOnStderr: false
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_sp_Secret_Name: $(ServicePrincipal)
+
+      - powershell: ../bin/terraform.exe plan
+        displayName: "Run a plan"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/key_rotation
+        failOnStderr: true
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_sp_Secret_Name: $(ServicePrincipal)
+
+      - powershell: ../bin/terraform.exe apply -auto-approve
+        displayName: "Apply plan"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/key_rotation
+        failOnStderr: true
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_sp_Secret_Name: $(ServicePrincipal)

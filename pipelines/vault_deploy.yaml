@@ -1,0 +1,57 @@
+name: "Deploy Vault"
+
+pool:
+  vmImage: windows-latest
+
+variables:
+  - group: Infrastructure
+
+trigger: none
+
+jobs:
+  - job: Deploy
+    steps:
+      - powershell: ../bin/terraform.exe init
+        displayName: "Initialize terraform"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/vault_deploy
+        failOnStderr: true
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_aks_name: $(Aks_Name)
+          TF_VAR_aks_resource_group_name: $(Aks_Resource_Group_Name)
+          TF_VAR_vault_storage_key: $(vault_storage_key)
+          TF_VAR_keyvault_unseal_clientid: $(keyvault_unseal_clientid)
+          TF_VAR_keyvault_unseal_secret: $(keyvault_unseal_secret)
+
+      - powershell: ../bin/terraform.exe plan
+        displayName: "Run a plan"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/vault_deploy
+        failOnStderr: true
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_aks_name: $(Aks_Name)
+          TF_VAR_aks_resource_group_name: $(Aks_Resource_Group_Name)
+          TF_VAR_vault_storage_key: $(vault_storage_key)
+          TF_VAR_keyvault_unseal_clientid: $(keyvault_unseal_clientid)
+          TF_VAR_keyvault_unseal_secret: $(keyvault_unseal_secret)
+
+      - powershell: ../bin/terraform.exe apply -auto-approve
+        displayName: "Apply plan"
+        workingDirectory: $(Build.SourcesDirectory)/terraform/vault_deploy
+        failOnStderr: true
+        env:
+          ARM_SUBSCRIPTION_ID: $(Subscription_Id)
+          ARM_CLIENT_ID: $(Client_Id)
+          ARM_CLIENT_SECRET: $(Client_Secret)
+          ARM_TENANT_ID: $(Tenant_Id)
+          TF_VAR_aks_name: $(Aks_Name)
+          TF_VAR_aks_resource_group_name: $(Aks_Resource_Group_Name)
+          TF_VAR_vault_storage_key: $(vault_storage_key)
+          TF_VAR_keyvault_unseal_clientid: $(keyvault_unseal_clientid)
+          TF_VAR_keyvault_unseal_secret: $(keyvault_unseal_secret)
